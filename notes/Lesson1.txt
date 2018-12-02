@@ -1,0 +1,10 @@
+Constraint propogation & Search
+
+Constraint propogation narrows possibilities and means that you need to search less.
+Search to find all posibilities at each step and keep track of them.
+
+Search tries a number of possible solutions when it is not clear which solution is the correct one to use.
+It branches solutions out until it finds one that works.
+
+Depth frist search:
+In tree of possibilities, start at root and move over all nodes in the left most branch then move to the next branch on the right.
