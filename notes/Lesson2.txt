@@ -1,37 +1,23 @@
-Notes:
-Heuristic is additional info/rules/constraints which inform what would otherwise be a brute-force algorithm.
-A* search algorithm checks all options and prioritise those that minimise the distance.
+Constraint satisfaction problems (CSP):
+Variables, domains, constraints
 
-Need to keep all neccecary info to succeed.
+Constraint graphs:
+Nodes are variables and lines are constraints.
 
-Adversarial Search algorithms:
-Mini-max algorithm (max chances of you winning and min chances of oponent winning)
+Search in csp's: assign guesses to variable values to get to next state untill all have a valid value. If not then go back and repeat.
+	Depth first search will get all possibilities but will test some that dont make sense and also test the same option more than once.
+	Backtracking is the same as depth first search but looks at one assignment order and reverts to a different one
+		once any of its constraints are violated.
+		Choice of which var to choose first and what value to use affects efficiency.
+	Local searches use complete assignments. All variables always are given a value. Start with full assignment then 
+	change one or more variables in a local neighbourhood.
+Can improve efficiency:
+	Fist assign those with min remaining values (mrv).
+	First assin those with most constraints.
+	Forward checking keeps list of possible values left for each variable. When a variable ends up with no remaining values
+	then can backtrack sooner.
+		Networks are arc consistent is for each possibility in a given node, there are other viable possibilies
+		which can be taken in the nodes connected to it. Network is consistent if all arc are arc consistent.
 
-Bayes Theory to solve Month Hall problem P(a|b)=P(b|a)*P(a)/p(b)
-
-
-States (info) to store:
-Only things that are neccessary to know to complete the task.
-Goal state:
-States that represent the goal you want to achieve.
-
-Preception:
-Sensing properties of environment
-
-Actions:
-Change state of the environment
-
-Cognition:
-Decising what actions to take based on percieved inputs.
-
-Intelligent agent: takes actions to max expected utility given a goal (rational behavior).
-	Cant expect to always operate optimally in real life. Instead, use bounded optimality.
-
-Reactive/Behaviour based agents: Actions and Perception are directly links
-
-
-Environment:
-Fully/Partially observable
-Determinstic/Stochastic
-Discrete/Continous
-Benign/Adversarial
+Monolithic constraints vs splitting constraints up.
+All boolean constraints vs pseudo-boolean cardinality constraint.

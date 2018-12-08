@@ -1,0 +1,82 @@
+Defintion of a problem:
+-Initial state: All states are the state space and navigat the space with actions.
+-Actions: state dependent or not
+-Result: of a state and an action->new state R(s,a)->s'
+-Goal test: to see if you have the result or not
+-Path cost function: cost of states and actions over all steps. Probaly additive
+	-Sum of step cost functions cost(s,a,s')
+
+**Uninformed Search
+-No extra info about states appart from what is provided in the problem
+-Just have to keep generating successors until they get to the goal state.
+-States can be put into 3 types. Explored, unexplored and frontier which is the furthest
+	state you have reached in each link.
+
+Tree search:
+-Look at frontier. If not more options there then fail
+-If not the remove that option from the frontier
+	-different algos choose how to eliminate the frontier options differently
+-if it is the goal then you are done
+-if not goal then look at actions avaliable.
+
+Breath first search (closest first):
+-Expands shallowest (shortest) paths first
+-Chooses path from frontier which has not been chosen yet and is the 
+	shortest (in steps)
+-When all same distance then choose at random or have a different kind of tie breaker
+-can easily end up backtracking.
+-Graph search- dont go back to states already in explored
+- Wont just stop when goal is found. Can add constraint to do that.
+-Doesnt know if found best path or not. Looks so far at only steps and not cost.
+-Frontier size is 2^n at level n
+-This search is complete. Will find goal even if infinite length paths
+
+Uniform cost search (cheapest first):
+-Expands cheapest cost path first
+-doesnt expand by looking for nearest but cheapest path.
+-Add cost on for successive steps and new paths
+-cant go back to node already explored. Will be more expensive anyway.
+-Continue to search until goal is taken off the frontier (until you explore it)
+-always finds cheapest as long as all costs are non negative.
+-Frontier size is 2^n at level n
+-This search is complete. Will find goal even if infinite length paths
+-starts from startstate and expands equally in all directions.
+-Will spend lots of extra effort to reach goal.
+
+Depth first search:
+-Expands first the longest path
+-terminates the first time it finds the goal. Not optimal like the other two.
+-Frontier size is just n as long as dont keep track of explored states.
+- Not complete. Wont be able to find goal in infinite length paths. Can just
+	get stuck in one inifinite path which doesnt include goal.
+
+**Informed search
+--additional information about the search states
+
+Greedy best-first search:
+-Search directed towards the goal by estimates of how close you get to the goal
+-Finds a path. Expands nodes in one direction only. But can end up taking a
+a longer route.
+-If a direct path is available, expends much less effort than Uniform Cost
+- Better if can combine using fewer nodes but still find the shortest path.
+
+A* algorithm (best estimated total path cost first):
+-expands paths with min value of f=g+h
+-g(path)=path cost to get to next state, 
+	h(path)=h(s)=estimated distance to the goal from next state you want to go to, 
+s is state you are in
+-So its the cost to get to where you are+estimated cost to get to goal from here
+-min(g) keeps path short, min(h) keeps focused on the goal,
+min(f) finds shortest length path to the goal which expanding the minimum
+number of paths possible.
+-Doesnt just focus on one path. Still considers every path on frontier
+when deciding what has the smallest f value.
+-Will generally find the lowest cost function but depends on having the 
+correct h function to do so. This happens when h is optimistic/admissable.
+-Finds lowest cost path when h(s)<true cost to get to goal from s.
+h should not overestimate the distance to the goal.
+This is because once path to goal is found, it is lower in cost than any other
+on the frontier and we know its true cost since h=0 at goal. Also everything on
+frontier will be understimating their cost to the goal and we are already
+lower than that anyway. Also all steps are thought to have non zero cost.
+So cost should keep going up for other paths.
