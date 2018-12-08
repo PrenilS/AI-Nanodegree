@@ -80,3 +80,21 @@ on the frontier and we know its true cost since h=0 at goal. Also everything on
 frontier will be understimating their cost to the goal and we are already
 lower than that anyway. Also all steps are thought to have non zero cost.
 So cost should keep going up for other paths.
+
+--An admissable heuristic never over estimates the cost to get to the goal. 
+An A* search with one heuristic that is more costly (>=) than another 
+but still admissable will expand fewer paths to get to the goal.
+--Heuristics can be combined so that new=max(old1,old2). Will be admissable as
+long as both old ones are admissable and will expand fewer paths.
+Disadvantage is the extra cost for computing two.
+
+--Paths<->Nodes. Nodes have state they represent, action taken to get there,
+cost to get there and the parent node.
+--Nodes fall into frontier or explored lists.
+Frontier
+-Removes best items and adds in new ones and tests membership. 
+It is implemented as a priority queue which knows what to add when. 
+Represented as a set and built with a hast table or tree.
+Explored
+-Adds new members tests membership to set. Represented as a single set 
+and built from a hast table or tree.
