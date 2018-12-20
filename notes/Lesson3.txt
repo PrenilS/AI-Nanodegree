@@ -84,6 +84,8 @@ So cost should keep going up for other paths.
 --An admissable heuristic never over estimates the cost to get to the goal. 
 An A* search with one heuristic that is more costly (>=) than another 
 but still admissable will expand fewer paths to get to the goal.
+--A consistent heuristic will never decrease cost by more than one for an action
+which has a cost of 1.
 --Heuristics can be combined so that new=max(old1,old2). Will be admissable as
 long as both old ones are admissable and will expand fewer paths.
 Disadvantage is the extra cost for computing two.
