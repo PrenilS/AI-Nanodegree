@@ -100,3 +100,12 @@ Represented as a set and built with a hast table or tree.
 Explored
 -Adds new members tests membership to set. Represented as a single set 
 and built from a hast table or tree.
+
+
+Problem solving will always work when:
+-Domain needs to be fully observable: Should be able to see initial state
+-Domain needs to be known: Should know all actions avaliable to us
+-Domain needs to be dicrete: Should be a finite number of actions to choose from
+-Domain needs to be deterministic: Should know what the result of any action will be
+-Domain needs to be static: Nothing else can change the world apparty from agents actions
+
