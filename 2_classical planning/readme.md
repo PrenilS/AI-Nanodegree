@@ -29,12 +29,6 @@ The algorithms are as follows:
 10. A* search, max level heuristic
 11. A* search, set level heuristic
 
-Alternatively,
-
-```
-python run_search.py -m
-```
-
-will bring up messages to help you manually choose which problems and algorithms to use.
+Alternatively, `python run_search.py -m`, will bring up messages to help you manually choose which problems and algorithms to use.
 
 report.pdf contains my own conclusions from this exercise and a few graphs illustrating the performances of each algorithm.
