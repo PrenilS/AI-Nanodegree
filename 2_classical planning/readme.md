@@ -12,7 +12,7 @@ You can run the problems yourself from shell:
 
 ```
 python run_search.py -p 1 2 3 4 -s 1 2 3 4 5 6 7 8 9 10 11
-``
+```
 
 The `-p` option allows you to select which of the 4 problems and the `-s` option allows you to select which algorithm to use.
 The algorithms are as follows:
