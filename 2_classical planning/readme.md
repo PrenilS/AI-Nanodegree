@@ -32,3 +32,5 @@ The algorithms are as follows:
 Alternatively, `python run_search.py -m`, will bring up messages to help you manually choose which problems and algorithms to use.
 
 report.pdf contains my own conclusions from this exercise and a few graphs illustrating the performances of each algorithm.
+
+Credit for the majority of code, with exception of certain function in my_planning_graph.py goes to the Udacity team.
