@@ -1,4 +1,4 @@
-#Notes for Udacity AIND
+# Notes for Udacity AIND
 
 This folder contains a collection of my own notes from the AI Nanodegree. 
 
