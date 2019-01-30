@@ -712,10 +712,13 @@ Shakes up the algorithm enough to move out of a local max/min but not out of glo
 Any hill-climb which can't go downwards will always be incomplete (get stuck at a local max).
 Random walk is complete but extremely inefficient.
 
-Algorithm picks a random move. If the move improves the situation, it is always accepted. If not, the move is accepted with prob decreasing exponentially
+Algorithm picks a random move. If the move improves the situation, it is always accepted. If not, 
+the move is accepted with prob decreasing exponentially
 the worse the move is.
 The prob depends on the amount ΔE by which the evaluation is worsened and T (as T increases bad 
-moves less likely to be accepted). 
+moves less likely to be accepted). But in the beginning when T is very large in the schedule, the probability 
+of a bad move being accepted tends to 1. On a plateau, delts E is 0 so prob of accepting a worse state is 1
+no matter how small T becomes.
 
 When T is decreased slowly enough with a schedule (mapping from time to temperature)
 , it always finds a global optimum with probability approaching 1.
@@ -764,7 +767,7 @@ Each state is represented as a string over a finite alphabet
 The *fitness function* is an objective function used to evaluate each state.
 It returns higher values for better states.
 Probability of being chosen for reproducing is directly proportional to the
-fitness score.
+fitness score. Your fitness score/ sum of fitness scores of all.
 For a pair to be mated, a *crossover* point is chosen randomly from the positions in the string.
 offspring are created by crossing over parent strings at the
 crossover point. 
