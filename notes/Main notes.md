@@ -25,7 +25,7 @@ Bayes Theory to solve Month Hall problem P(a|b)=P(b|a)*P(a)/p(b)
 
 
 States (info) to store:
-Only things that are neccessary to know to complete the task.
+Only things that are necessary to know to complete the task.
 Goal state:
 States that represent the goal you want to achieve.
 
@@ -168,22 +168,22 @@ number of paths possible.
 -Doesnt just focus on one path. Still considers every path on frontier
 when deciding what has the smallest f value.
 -Will generally find the lowest cost function but depends on having the 
-correct h function to do so. This happens when h is optimistic/admissable.
+correct h function to do so. This happens when h is optimistic/admissible.
 -Finds lowest cost path when h(s)<true cost to get to goal from s.
 h should not overestimate the distance to the goal.
 This is because once path to goal is found, it is lower in cost than any other
 on the frontier and we know its true cost since h=0 at goal. Also everything on
-frontier will be understimating their cost to the goal and we are already
+frontier will be underestimating their cost to the goal and we are already
 lower than that anyway. Also all steps are thought to have non zero cost.
 So cost should keep going up for other paths.
 
---An admissable heuristic never over estimates the cost to get to the goal. 
+--An admissible heuristic never over estimates the cost to get to the goal. 
 An A* search with one heuristic that is more costly (>=) than another 
-but still admissable will expand fewer paths to get to the goal.
+but still admissible will expand fewer paths to get to the goal.
 --A consistent heuristic will never decrease cost by more than one for an action
 which has a cost of 1.
---Heuristics can be combined so that new=max(old1,old2). Will be admissable as
-long as both old ones are admissable and will expand fewer paths.
+--Heuristics can be combined so that new=max(old1,old2). Will be admissible as
+long as both old ones are admissible and will expand fewer paths.
 Disadvantage is the extra cost for computing two.
 
 --Paths<->Nodes. Nodes have state they represent, action taken to get there,
@@ -573,3 +573,368 @@ Propositional logic
 • Search using a planning graph
 
 PDDL cant have universal quantifiers like first-order logic.
+
+*Plan space search*
+Searches through space of plans instead of space of states. Starts with start state and goal state and adds
+actions to keep branching the possible different plans there could be. Then search over those plans. 
+
+*Backwards search* searches abstract plan states
+
+*Forwards search* searches concrete plan states. Can use good heuristics. Action schemas allow
+heuristics to be generated automatically. Just have to relax some of the requirements in the action schema.
+
+For sliding blocks:
+
+```buildoutcfg
+Action: Slide(t,a,b)
+Precondition: On(t,a) ^ Tile(t) ^ Blank(b) ^ Adj(a,b)
+Effect: On(t,b) ^ Blank(a) ^ -,On(t,a) ^ -, Blank(b)
+```
+
+If remove precondition that `Blank(b)` to relax the prob then we have manhattan distance. Or could remove
+`Adj(a,b)`.
+
+Can also ignore negative effects.
+
+### Situation calculus
+
+ALL doesn't exist in propositional languages like universal quantifiers.
+But First order logic can do this.
+
+To apply this first order logic to planning, we use situation calculus.
+
+Actions are seen as objects (in the form of a function Fly(p,c,a))
+
+Situations are seen as objects too corresponding to paths instead of states. Initial situation is S0. 
+Then there is a function result of applying an action to the situation `S'=Result(s,a)` to produce a new situation.
+Don't say what actions are available. Say what actions are possible in the state `Poss(a,s)`.
+These predicates have the form Precond(s)=> Poss(a,s). Preconditions based on state s imply what actions are
+possible in state s.
+
+*Successor state axioms* with fluent true being some fluent (In(c,p) for example)
+```buildoutcfg
+for all a,s Poss(a,s) => (fluent true <=> a made it true V a didnt make it false)
+```
+
+To describe initial state S0 and goal:
+
+Simple predicates or simple predicates with a for all or exists ect.
+
+Any first order logic prover can be used to solve these problems and much more flexible then simple planning.
+
+## Local search algorithms and optimization problems
+
+To get closer to real world problems, have to relax some assumptions.
+
+Local search only looks at current states not explore new ones. Can use local search when solution is whats important
+not the cost to get there.
+
+Systematic search algorithms explore search spaces systematically by keeping one or more paths in memory and recording 
+which alternatives have been explored at each point along the path. The path to the goal is the solution. 
+
+In many problems, the path is not important only the goal.
+
+*Local search algorithms: Use only the current single node. They generally move only to neighbors of that node. 
+The path is usually not retained. 
+They use very little memory and often find reasonable solutions in large
+or infinite (continuous) state spaces where systematic algorithms don't work.
+
+Local search algorithms can also optimise an objective function in an *optimisation problem*.
+
+A *state-space landscape* has a location (state) and an elevation (heuristic cost / objective function). 
+Local search algorithms traverse the state-space landscape searching for global max/mins.
+
+A *complete* local search algorithm always finds a goal if one exists 
+ 
+An *optimal* algorithm always finds a global minimum/maximum.
+
+### Hill-climbing search
+
+```buildoutcfg
+function Hill-Climbing (problem):
+    current <- Make-Node (problem.Initial-State)
+    do:
+        neightbor <- max(current.successors.value)
+        if neighbor.value <= current.value:
+            return current.state
+        else current <- neighbor
+    return current.state
+```
+
+This is the *steepest ascent* version of the hill-climbing search algorithm. It does not save a search tree. 
+The data structure only needs to save the state and the value of the objective function for the current node. 
+
+Local search algorithms typically use a complete-state formulation. 
+
+Hill-climbing algorithms typically choose randomly among the set of best successors if there
+is more than one.
+
+Hill climbing is also called *greedy local search* (chooses the best neighbor without looking ahead)
+
+Hill climbing works very well at bad states and can improve them quickly but can get stuck when:
+
+1. There are *local maxima* which trap the search an prevent it from finding the global maximum.
+2. There are *ridges* (sequence of local maxima)
+3. There is a *plateau* (flat area of the state-space landscape). Either a flat local
+maximum or a shoulder. These will stop a local search when states with no improvement in value of state causes
+ the search to terminate.
+ 
+This can be solved by allowing a *sideways move* and would reach a solution when the plateau is a shoulder.
+This can cause an infinite loop in the case of a flat local maximum.
+To stop an infinite loop we limit the number of consecutive sideways moves allowed. The cost is allowing extra moves,
+making solutions longer.
+
+*Stochastic hill climbing*
+ 
+Selects a random uphill move with probability of selection dependent on the steepness of the move.
+Converges slower than steepest ascent, but in some cases finds better solutions.
+
+*First-choice hill climbing*
+ 
+Generates successors randomly until one better than the current state is found.
+Works well when a state has many possible successors.
+
+All of these algorithms are incomplete because they might not find a possible solution when they get stuck on
+on a local maximum.
+
+*Random-restart hill climbing*
+ 
+Performs many hill-climbing searches from randomly generated initial states, until a goal
+is found. Complete with probability approaching 1. If probability p of
+success, then the expected number of restarts required is 1/p.
+The expected number of steps is the cost of one successful iteration plus
+(1−p)/p times the cost of failure.
+
+###Simulated annealing
+
+Shakes up the algorithm enough to move out of a local max/min but not out of global max/min.
+
+Any hill-climb which can't go downwards will always be incomplete (get stuck at a local max).
+Random walk is complete but extremely inefficient.
+
+Algorithm picks a random move. If the move improves the situation, it is always accepted. If not, the move is accepted with prob decreasing exponentially
+the worse the move is.
+The prob depends on the amount ΔE by which the evaluation is worsened and T (as T increases bad 
+moves less likely to be accepted). 
+
+When T is decreased slowly enough with a schedule (mapping from time to temperature)
+, it always finds a global optimum with probability approaching 1.
+
+```buildoutcfg
+function Simulate-annealing(problem, schedule):
+    current = Make-Node(problem.Initial-State)
+    for t = 1 to inf:
+        T = schedule(t)
+        if T = 0:
+            return current
+        next = random(current.successors)
+        deltaE = next.Value - current.Value
+        if deltaE > 0 then:
+            current = next
+        else:
+            prob = exp(deltaE/T)
+            rand = rand(0,1)
+            if rand <= prob:
+                current = next
+    return current
+```
+
+###Local beam search
+
+Keeps track of k states rather than one node at a time. 
+Generate k states randomly then at each step, successors of all k states are generated. 
+Selects k best successors over the complete list and continues until one of them is a goal.
+
+Useful information is shared between the parallel searches.
+
+Can suffer from lack of diversity among the k states and get concentrated in a small region of the state space
+
+*Stochastic beam search*
+
+Instead of choosing the best k successors, they are chosen at random.
+Prob of choosing a successor increases as its value increases.
+
+*Genetic algorithms* 
+A variant of stochastic beam search.
+Successor states generated by combining two parent states rather than by modifying a single state.
+
+Begin with k randomly generated states(the population). 
+Each state is represented as a string over a finite alphabet
+
+The *fitness function* is an objective function used to evaluate each state.
+It returns higher values for better states.
+Probability of being chosen for reproducing is directly proportional to the
+fitness score.
+For a pair to be mated, a *crossover* point is chosen randomly from the positions in the string.
+offspring are created by crossing over parent strings at the
+crossover point. 
+
+When parent states are quite different, the crossover operation can produce a state that is
+a very different from either of them. 
+This causes large steps in the state space early in the search process and smaller steps later on.
+
+Each location is subject to random *mutation* with a small independent
+probability in each offspring. 
+
+Here uphill searching is combined with random exploration and parallel exchange of information.
+ 
+A *schema* is a substring with positions that can be left without a value.
+Strings matching the schema ara *instances* of it.
+
+If the average fitness of all instances for a schema is above the mean, 
+the number of instances of the schema within the population
+will grow over time. 
+
+Genetic algorithms work best when schemata correspond to meaningful
+components of a solution.
+ 
+```buildoutcfg
+function Genetic_Algorithm (population, fitness_fn):
+    do until any(population.fitness_fn >= F) or t >= T:
+        new_pop = empty set
+        for i=1 to Size(population):
+            x = Random_select(population, fitness_fn)
+            y = Random_select(population, fitness_fn)
+            child = Reproduce(x,y)
+            prob = small prob
+            rand = rand(0,1)
+            if rand <= prob:
+                child = Mutate(child)
+            new_pop.add(child)
+        population = new_pop
+    return population[max(population.fitness_fn),]
+```
+
+### Local search in continuous spaces
+
+Only first-choice hill climbing and simulated annealing can be used when the state space is continuous.
+These algorithms choose successors randomly, which can be done by generating random vectors of length δ.
+The others have infinite branching factors.
+ 
+Can *discretize* the neighborhood of each state to avoid being in a continuous prob.
+
+States are defined by an n-dimensional vector of variables x.
+Objective function f(x).
+
+Can use *gradient methods* to find a maximum. 
+Use gradient of the objective function ∇f -> partial derivative of objective.
+∇f = (∂f/∂x1, ∂f/∂y1, ...).
+
+In simple cases where closed form expression exists solution is to solve ∇f = 0. 
+
+When no closed form, can calc gradient locally only. SO just ∂f/∂x1.
+
+Given a locally correct expression for the gradient, we can perform steepest-ascent hill climbing by updating 
+the current state: x ← x + α∇f(x) (α: step size). if α is too small, many steps are needed and if it
+is too large, the search could overshoot the maximum.
+
+When the objective function is not in a differentiable form we use the *empirical gradient* by evaluating the
+response to small increments and decrements in each coordinate.
+
+*Line search*
+
+Helps with choice of step size. It extends the current gradient direction—usually by repeatedly
+doubling α—until f starts to decrease again. The point at which this occurs becomes the new
+current state. The new direction is then chosen. This can be accomplished with:
+
+*Newton–Raphson method* computes estimates for the root x by solving g(x)=0 with x ← x − g(x)/g'(x) .
+Max or min of objective is where gradient is 0: ∇f(x) = 0. So the update is x ← x − H^−1*∇f(x). But computing
+all n^2 entries of hessian can be expensive.
+
+
+Problems of  local maxima, ridges, and plateaux also exist in the continuous state spaces .
+High-dimensional continuous spaces become very big and it is easy to get lost.
+
+*Constrained optimization problems*
+
+Solutions must satisfy hard constraints on the variables. Difficulty depends on type of constraints 
+and objective function.
+
+An example of these problems are *linear programming problems*. 
+Constraints are linear inequalities forming a convex set. Objective function is also
+linear. Complexity is polynomial in number of variables.
+
+*Convex optimization* are the more general class of this problem. 
+
+###SEARCHING WITH NONDETERMINISTIC ACTIONS
+
+When the environment is either partially observable or nondeterministic you need to be able to perceive and learn from
+environment as you go through. 
+
+Every percept narrows down the set of possible states the agent might be in. 
+
+In the nondeterministic case, percepts tell the agent which of the possible outcomes of its actions has actually occurred.
+In the partially observable case, percepts tell the agent which possible state they are in.
+ 
+Future percepts cannot be determined in advance and the future actions depend on these.
+
+Solutions are not a sequence but a *contingency plan* or *strategy*. Plans which say what to do depending on the percepts.
+
+To formulation nondeterministic problems, we need to generalize the notion of a transition model to be
+a RESULT function that returns a set of possible outcome states instead of just one state.
+Solutions can contain nested if–then–else statements to do this (more like a tree).
+
+####AND–OR search trees
+
+In deterministic environments, the only branching comes from the agents choices in each state (*OR nodes*).
+In nondeterministic environments, branching can also come from the environment’s choice of outcome for each action
+(*AND nodes*). AND and OR nodes then alternate to lead to an *AND–OR tree*.
+ 
+A solution for an AND–OR search problem is a subtree that:
+1. Has a goal node at every leaf
+2. Specifies one action at each of its OR nodes
+3. Includes every outcome branch at each of its AND nodes. 
+
+The solution is shown in bold lines in the figure; it corresponds
+to the plan given in Equation (4.3). (The plan uses if–then–else notation to handle the AND
+branches, but when there are more than two branches at a node, it might be better to use a case
+
+This can be solved with an *interleaving search* where the agent can act before it has found a guaranteed plan and 
+deals with some contingencies only as they arise.
+ 
+ Depth first search example:
+ 
+ ```buildoutcfg
+function AND-OR-GS (problem):
+    OR-Search(problem.Initial_state, problem,[])
+    return action|plan or failure
+    
+function OR-Search (state, problem, path):
+    if problem.Goal_test(state):
+        return empty_plan
+    if state is on path:
+        return failure
+    for action in problem.Actions(state):
+        plan = AND-Search(Results(state,action), problem, [state|path]
+        if plan <> failure:
+            return action|plan]
+    return failure
+
+function AND-Search(states,problem,path):
+    for si in states:
+        plani = OR-Search(si,problem,path)
+        if plani = failure:
+            return failure
+    return [if si then plani,...,if sn-1 then plann-1, else plann]
+```
+ 
+Cycles often arise in nondeterministic problems. So if the current state is identical to a state on the path from 
+the root, then it returns with failure. 
+There could still be a solution from current state but any noncyclic solution must be reachable from the earlier
+incarnation of the current state.
+s that the algorithm terminates in every finite state space.
+
+Can also be explored by breadth-first or best-first methods. The concept
+of a heuristic function must be modified to estimate the cost of a contingent solution rather
+than a sequence.
+
+In problems where there is no acyclic solution but there is a cyclic one, 
+the solution is expressed by adding a label to denote some portion of the plan and using that label later instead of 
+repeating the plan itself. L1: while state=x do y.
+
+Cyclic plans are a solution if:
+1. Every leaf is a goal state 
+2. A leaf is reachable from every point in the plan. 
+
+Loop in the state space back to a state L is same as a loop in the plan back to the point where 
+the subplan for state L is executed.
