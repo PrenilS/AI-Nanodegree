@@ -941,3 +941,68 @@ Cyclic plans are a solution if:
 
 Loop in the state space back to a state L is same as a loop in the plan back to the point where 
 the subplan for state L is executed.
+
+##Multiagent domains
+
+###Adversarial search
+
+Deterministic, turn-taking, two-player, *zero-sum games* (total payoff to all players
+is the same in every game) of perfect information are just deterministic problems.
+Fully observable environments in which two agents act alternately and
+the utility values at the end of the game are equal and opposite. 
+
+
+Games are too hard to solve. So need the ability to make some decision even when calculating the optimal
+decision is infeasible. Games also penalize inefficiency severely. 
+
+We use *pruning* to cut out portions of the search tree that make no difference to the final choice.
+Heuristic functions approximate true utility without doing a complete search.
+ 
+In a *max-min* game one agent wants to max and the other to min.
+To define a game as a search problem we need:
+1. S0: The initial state.
+2. PLAYER(s): Defines which player has the move in a state.
+3. ACTIONS(s): Returns the set of legal moves in a state.
+4. RESULT(s, a): The transition model, which defines the result of a move.
+5. *TERMINAL-TEST(s)*: A terminal test, which is true when the game is over. 
+States where the game has ended are *terminal states*.
+6. UTILITY(s, p): A utility function (also called an objective function or payoff function),
+defines the final numeric value for a game that ends in terminal state s for a player p. 
+
+Initial state, ACTIONS function, and RESULT function define the *game tree*. 
+
+
+###OPTIMAL DECISIONS IN GAMES
+
+Solution specifies MAX’s move in the initial state, then actions for every possible state that could be caused by MIN.
+This is an AND–OR search.
+ 
+Optimal strategies lead to outcomes at least as good as any other strategy when one is playing an
+infallible opponent. 
+
+A tree is one move deep if each player has only one action (two half moves each called a *ply*).
+
+Given a game tree, the optimal strategy can be determined from the minimax value
+of each node (utility for MAX assuming that both players play optimally till end of game from there -> *MINIMAX(n)*). 
+
+MINIMAX(s) = UTILITY(s) if TERMINAL-TEST(s)
+             max(MINIMAX(RESULT(s, a)) over all possible actions if PLAYER(s) = MAX
+             min(MINIMAX(RESULT(s, a)) over all possible actions if PLAYER(s) = MIN
+        
+For max, the *minimax decision* at each node is the action that leads to the highest minimax utility.
+     
+####The minimax algorithm
+
+The minimax algorithm performs a complete depth-first exploration of the game tree.
+
+If the maximum depth of the tree is m and there are b legal moves at each point, then the
+time complexity of the minimax algorithm is O(b^m). 
+
+The space complexity is O(bm) if all actions generated once, or O(m) if one at a time.
+ 
+####Optimal decisions in multiplayer games
+
+Single value for each node becomes a vector.
+
+The backed-up value of a node n is always the utility vector of the successor state with the highest value 
+for the player choosing at n. 
