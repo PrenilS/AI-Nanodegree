@@ -993,11 +993,39 @@ For max, the *minimax decision* at each node is the action that leads to the hig
      
 ####The minimax algorithm
 
-The minimax algorithm performs a complete depth-first exploration of the game tree.
+The minimax algorithm performs a complete depth-first exploration of the game tree. Alternating between min and max nodes:
 
-If the maximum depth of the tree is m and there are b legal moves at each point, then the
+```python
+def min_value(gameState):
+    if gameState.terminal_test():
+        return gameState.utility(0)
+    v = float("inf")
+    for a in gameState.actions():
+        v = min(v, max_value(gameState.result(a)))
+    return v
+
+
+def max_value(gameState):
+    if gameState.terminal_test():
+        return gameState.utility(0)
+    v = float("-inf")
+    for a in gameState.actions():
+        v = max(v, min_value(gameState.result(a)))
+    return v
+
+```
+
+Then the actual minimax algorithm from the perspective of a max agent is:
+```python
+def minimax_decision(gameState):
+    return max(gameState.actions(), key= lambda a: min_value(gameState.result(a)))
+```
+Max number of nodes will always be less than m! where m is number of blocks. Can't have more the m moves in a 
+game so this is the mac depth of the tree.
+
+If the maximum depth of the tree is m and there are b legal moves at each point (branching factor), then the
 time complexity of the minimax algorithm is O(b^m). 
-
+Can be estimated by average_branching_factor^average_number_nodes.
 The space complexity is O(bm) if all actions generated once, or O(m) if one at a time.
  
 ####Optimal decisions in multiplayer games
@@ -1006,3 +1034,88 @@ Single value for each node becomes a vector.
 
 The backed-up value of a node n is always the utility vector of the successor state with the highest value 
 for the player choosing at n. 
+
+###ALPHA–BETA PRUNING
+
+Number of game states minimax has to go through is exponential in the depth of the tree. 
+Can cut exponent in half if can compute the correct minimax decision without looking at every node.
+
+*Alpha–beta pruning*
+
+Returns the same move as minimax would, removes branches that can't influence the final decision because
+they are guaranteed to be worse than the other solutions at a max node or better than other at a min node.
+Can be applied to trees of any depth. 
+ 
+For a node n, if the player has a better choice m at the parent node of n or at any choice point further up,
+then n will never be reached in actual play. So it can br pruned out.
+ 
+Two parameters are used to describe bounds on the backed-up values that appear anywhere
+along the path:
+1. α = the value of the best (i.e., highest-value) choice we have found so far at any choice point
+along the path for MAX.
+2. β = the value of the best (i.e., lowest-value) choice we have found so far at any choice point
+along the path for MIN.
+
+Alpha and beta values are updated along the search branches and prunes the remaining
+branches at a node as soon as the value of the current
+node is known to be worse than the current α or β value for MAX or MIN, respectively. 
+
+```buildoutcfg
+function ALPHA-BETA-SEARCH(state):
+    v = MAX-VALUE(state,−∞,+∞)
+    return action in ACTIONS(state) where action.value = v
+    
+function MAX-VALUE(state,α,β):
+    if TERMINAL-TEST(state):
+        return UTILITY(state)
+    v = −∞
+    for a in ACTIONS(state):
+        v = MAX(v, MIN-VALUE(RESULT(s,a),α,β))
+        if v ≥ β:
+            return v
+        α = MAX(α, v)
+    return v
+    
+function MIN-VALUE(state,α,β):
+    if TERMINAL-TEST(state):
+        return UTILITY(state)
+    v = +∞
+    for a in ACTIONS(state):
+        v = MIN(v, MAX-VALUE(RESULT(s,a) ,α,β))
+        if v ≤ α:
+            return v
+        β = MIN(β, v)
+    return v
+```
+
+####Move ordering
+
+The effectiveness of alpha–beta pruning depends on order of how states are visited.
+Need to first the successors that are likely to be best so worse ones can be pruned.
+
+With correct ordering alpha–beta needs to examine only O(bm/2) nodes instead of O(bm).
+This makes the effective branching factor √b instead of b
+If states are seen in a random order, number of nodes examined will be roughly O(b3m/4).
+ 
+Even simple ordering gets you close to the best-case O(bm/2). Dynamic move-ordering schemes, 
+such as trying first the moves that were found
+to be best in the past, gets even closer to the theoretical limit. 
+
+One way to gain information from the current move is with iterative
+deepening search:
+1. Search 1 ply deep and record the best path of moves. 
+2. Search 1 ply deeper, but use the recorded path to inform move ordering. 
+
+Iterative deepening only adds a constant fraction to the total search time.
+ 
+Best moves are called *killer moves* so this is called the killer move heuristic.
+
+Repeated states can cause an exponential increase in search cost. 
+
+Repeated states occur because of *transpositions*.
+These are different permutations of the move sequence that end up in the same position. 
+
+Can store the evaluation of the resulting position in a hash table the first time it is encountered so that
+we don’t have to recompute it on subsequent occurrences. This table is called a *TRANSPOSITION TABLE*.
+But can become impractical to keep many many states in the transposition table. 
+Various strategies can be used to choose which nodes to keep and which to discard.
