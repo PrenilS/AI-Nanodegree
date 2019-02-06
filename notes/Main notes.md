@@ -1035,6 +1035,53 @@ Single value for each node becomes a vector.
 The backed-up value of a node n is always the utility vector of the successor state with the highest value 
 for the player choosing at n. 
 
+###Depth-limited search
+
+Best moves are called *killer moves* so this is called the killer move heuristic.
+
+Repeated states can cause an exponential increase in search cost. 
+
+Repeated states occur because of *transpositions*.
+These are different permutations of the move sequence that end up in the same position. 
+
+Can store the evaluation of the resulting position in a hash table the first time it is encountered so that
+we don’t have to recompute it on subsequent occurrences. This table is called a *TRANSPOSITION TABLE*.
+But can become impractical to keep many many states in the transposition table. 
+Various strategies can be used to choose which nodes to keep and which to discard.
+
+With an average processor and branching factor b a depth limited search should be able to search to a depth of
+at x where x< log(10,2)*10^9/log(10,b).
+
+
+*Quiescent search*
+
+When depth of search no longer changes the branchs chosen very much, we have reached the quiescence of the search.
+Don't have to always use this. With iterative deepening this is a side effect and iterative deepening doesn't actually
+waste that much time. 
+
+*Iterative deepening*
+
+Since because problem is exponential, time taken is dominated by the last level which we
+have to search. With branching level of 2, it always expands less than half the number of nodes that 
+a depth first search would and this gets even worse as the branching factor increases.
+
+For branching factor of k, the number of nodes expanded by iterative-deepening is n=(k^(d+1)-1)/(k-1) where 
+d is the depth
+
+One way to gain information from the current move is with iterative
+deepening search:
+1. Search 1 ply deep and record the best path of moves. 
+2. Search 1 ply deeper, but use the recorded path to inform move ordering. 
+
+Iterative deepening only adds a constant fraction to the total search time.
+Can also limit time at each level so you search more in middle and less at end where fewer options,
+can limits total time of the game. And at each level that  you have time for you will always have an answer.
+
+One challenge is the *horizon effect* where the agent just cant look far enough ahead because of limitations
+in time to where the best option would reveal itself and so makes bad choices now. Can be combated with a better 
+evaluation function but the more complicated the evaluation function, the bigger the effect on performance 
+further down the tree.
+
 ###ALPHA–BETA PRUNING
 
 Number of game states minimax has to go through is exponential in the depth of the tree. 
@@ -1055,6 +1102,9 @@ along the path:
 along the path for MAX.
 2. β = the value of the best (i.e., lowest-value) choice we have found so far at any choice point
 along the path for MIN.
+
+Since it is a DFS tree, scores will be updated left to right so the left most best score is the one that
+will be taken and other identical ones will be pruned.
 
 Alpha and beta values are updated along the search branches and prunes the remaining
 branches at a node as soon as the value of the current
@@ -1101,21 +1151,16 @@ Even simple ordering gets you close to the best-case O(bm/2). Dynamic move-order
 such as trying first the moves that were found
 to be best in the past, gets even closer to the theoretical limit. 
 
-One way to gain information from the current move is with iterative
-deepening search:
-1. Search 1 ply deep and record the best path of moves. 
-2. Search 1 ply deeper, but use the recorded path to inform move ordering. 
+####Symetry
 
-Iterative deepening only adds a constant fraction to the total search time.
- 
-Best moves are called *killer moves* so this is called the killer move heuristic.
+Can eliminate the need to search certain states by checking if an equivalent state has already been searched.
 
-Repeated states can cause an exponential increase in search cost. 
+####Opening book
 
-Repeated states occur because of *transpositions*.
-These are different permutations of the move sequence that end up in the same position. 
+Can learn from experience which opening moves best. Opening 
+books are usually built by analyzing a large corpus of games.
 
-Can store the evaluation of the resulting position in a hash table the first time it is encountered so that
-we don’t have to recompute it on subsequent occurrences. This table is called a *TRANSPOSITION TABLE*.
-But can become impractical to keep many many states in the transposition table. 
-Various strategies can be used to choose which nodes to keep and which to discard.
+Can create a corpus by using random  rollouts (or by using your agent) to play many games.
+
+
+
