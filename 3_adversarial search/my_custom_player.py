@@ -10,9 +10,9 @@ class CustomPlayer(DataPlayer):
         if state.ply_count < 2:
             self.queue.put(random.choice(state.actions()))
         else:
-            self.queue.put(self.minimax(state, depth=4))
+            self.queue.put(self.alpha_beta_search(state, depth=5))
 
-    def minimax(self, state, depth):
+    def alpha_beta_search(self, state, depth):
 
         def min_value(state, depth, alpha, beta):
             if state.terminal_test():
@@ -49,7 +49,7 @@ class CustomPlayer(DataPlayer):
         for a in state.actions():
             v = min_value(state.result(a), depth-1, alpha, beta)
             alpha = max(alpha, v)
-            if v > best_score:
+            if v >= best_score:
                 best_score = v
                 best_move = a
         return best_move
@@ -61,14 +61,3 @@ class CustomPlayer(DataPlayer):
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
         return len(own_liberties) - len(opp_liberties)
-
-    def sort_actions(self, state):
-        import numpy as np
-        actions = state.actions()
-        results = [state.result(a) for a in actions]
-        scores = [self.score(s) for s in results]
-
-        sort_actions=np.column_stack((actions,scores))
-        sort_actions=sort_actions[sort_actions[:,1].argsort()[::-1]]
-
-        return sort_actions[:,0]
