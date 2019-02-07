@@ -1,6 +1,7 @@
 
 from sample_players import DataPlayer
-
+from math import sqrt
+from isolation import DebugState
 
 class CustomPlayer(DataPlayer):
 
@@ -10,7 +11,10 @@ class CustomPlayer(DataPlayer):
         if state.ply_count < 2:
             self.queue.put(random.choice(state.actions()))
         else:
-            self.queue.put(self.alpha_beta_search(state, depth=5))
+            depth_limit = 5
+            for depth in range(1, depth_limit + 1):
+                best_move = self.alpha_beta_search(state, depth)
+            self.queue.put(best_move)
 
     def alpha_beta_search(self, state, depth):
 
@@ -54,10 +58,18 @@ class CustomPlayer(DataPlayer):
                 best_move = a
         return best_move
 
-
     def score(self, state):
         own_loc = state.locs[self.player_id]
         opp_loc = state.locs[1 - self.player_id]
+
+        wght=2
+        cx, cy = 6, 5
+
+        _x, _y = DebugState(state).ind2xy(own_loc)
+        # oppx, oppy = state.locs[1 - self.player_id]
+
+        dist = sqrt((cx - _x) ** 2 + (cy - _y) ** 2)
+
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
-        return len(own_liberties) - len(opp_liberties)
+        return len(own_liberties)-dist*wght - len(opp_liberties)
