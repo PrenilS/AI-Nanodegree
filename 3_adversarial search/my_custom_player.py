@@ -66,14 +66,11 @@ class CustomPlayer(DataPlayer):
         opp_loc = state.locs[1 - self.player_id]
 
         wght = 0.5
-        cx, cy = 6, 5
+        mid = 57
 
-        _x, _y = (own_loc % (_WIDTH + 2), own_loc // (_WIDTH + 2))
-        _x2, _y2 = (opp_loc % (_WIDTH + 2), opp_loc // (_WIDTH + 2))
-
-        dist = sqrt((cx - _x) ** 2 + (cy - _y) ** 2)
-        dist2 = sqrt((cx - _x2) ** 2 + (cy - _y2) ** 2)
+        dist = mid - own_loc
+        dist2 = mid - opp_loc
 
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
-        return (len(own_liberties)-dist*wght) - (len(opp_liberties)-dist2*wght)
+        return (len(own_liberties) - dist * wght) - (len(opp_liberties) - dist2 * wght)
