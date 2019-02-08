@@ -58,7 +58,7 @@ def score(state):
 
 
 
-NUM_ROUNDS = 100
+NUM_ROUNDS = 1000
 
 def build_table(num_rounds=NUM_ROUNDS):
 
@@ -69,11 +69,11 @@ def build_table(num_rounds=NUM_ROUNDS):
     return {k: max(v, key=v.get) for k, v in book.items()}
 
 
-def build_tree(state, book, depth=4):
+def build_tree(state, book, depth=5):
     if depth <= 0 or state.terminal_test():
         return -simulate(state)
 
-    action = alpha_beta_search(state=state, depth=3)
+    action = alpha_beta_search(state=state, depth=5)
     reward = build_tree(state.result(action), book, depth - 1)
     book[state][action] += reward
     return -reward
