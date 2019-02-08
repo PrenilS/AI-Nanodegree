@@ -1,13 +1,13 @@
-
+import random
 from sample_players import DataPlayer
 from math import sqrt
-from isolation import DebugState
+from isolation.isolation import _WIDTH
+
 
 class CustomPlayer(DataPlayer):
 
     def get_action(self, state):
 
-        import random
         if state.ply_count < 5:
             if state in self.data:
                 self.queue.put(self.data[state])
@@ -65,14 +65,15 @@ class CustomPlayer(DataPlayer):
         own_loc = state.locs[self.player_id]
         opp_loc = state.locs[1 - self.player_id]
 
-        wght=2
+        wght = 0.5
         cx, cy = 6, 5
 
-        _x, _y = DebugState(state).ind2xy(own_loc)
-        # oppx, oppy = state.locs[1 - self.player_id]
+        _x, _y = (own_loc % (_WIDTH + 2), own_loc // (_WIDTH + 2))
+        _x2, _y2 = (opp_loc % (_WIDTH + 2), opp_loc // (_WIDTH + 2))
 
         dist = sqrt((cx - _x) ** 2 + (cy - _y) ** 2)
+        dist2 = sqrt((cx - _x2) ** 2 + (cy - _y2) ** 2)
 
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
-        return len(own_liberties)-dist*wght - len(opp_liberties)
+        return (len(own_liberties)-dist*wght) - (len(opp_liberties)-dist2*wght)
