@@ -74,11 +74,6 @@ class CustomPlayer(DataPlayer):
         dist = math.sqrt(((own_x - mid_x) ** 2) + ((own_y - mid_y) ** 2))
         dist2 = math.sqrt(((opp_x - mid_x) ** 2) + ((opp_y - mid_y) ** 2))
 
-        wght = 0.5
-        # wght=1
-        # wght=2
-        # wght=3
-
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
-        return (len(own_liberties) - dist * wght) - (len(opp_liberties) - dist2 * wght)
+        return (len(own_liberties) - dist) - (len(opp_liberties) - dist2 )
