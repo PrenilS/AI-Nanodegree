@@ -1,6 +1,6 @@
 import random
 from sample_players import DataPlayer
-from math import sqrt
+import math
 from isolation.isolation import _WIDTH
 
 
@@ -8,11 +8,12 @@ class CustomPlayer(DataPlayer):
 
     def get_action(self, state):
 
-        if state.ply_count < 5:
-            if state in self.data:
-                self.queue.put(self.data[state])
-            else:
-                self.queue.put(random.choice(state.actions()))
+        if state.ply_count < 3:
+            self.queue.put(random.choice(state.actions()))
+            # if state in self.data:
+            # self.queue.put(self.data[state])
+        # else:
+        # self.queue.put(random.choice(state.actions()))
         else:
             depth_limit = 5
             for depth in range(1, depth_limit + 1):
@@ -30,7 +31,7 @@ class CustomPlayer(DataPlayer):
             v = float("inf")
 
             for a in state.actions():
-                v = min(v, max_value(state.result(a), depth-1, alpha, beta))
+                v = min(v, max_value(state.result(a), depth - 1, alpha, beta))
                 if v <= alpha:
                     return v
                 beta = min(beta, v)
@@ -43,7 +44,7 @@ class CustomPlayer(DataPlayer):
                 return self.score(state)
             v = float("-inf")
             for a in state.actions():
-                v = max(v, min_value(state.result(a), depth-1, alpha, beta))
+                v = max(v, min_value(state.result(a), depth - 1, alpha, beta))
                 if v >= beta:
                     return v
                 alpha = max(alpha, v)
@@ -54,7 +55,7 @@ class CustomPlayer(DataPlayer):
         best_score = float("-inf")
         best_move = None
         for a in state.actions():
-            v = min_value(state.result(a), depth-1, alpha, beta)
+            v = min_value(state.result(a), depth - 1, alpha, beta)
             alpha = max(alpha, v)
             if v >= best_score:
                 best_score = v
@@ -64,12 +65,19 @@ class CustomPlayer(DataPlayer):
     def score(self, state):
         own_loc = state.locs[self.player_id]
         opp_loc = state.locs[1 - self.player_id]
-
-        wght = 0.5
         mid = 57
 
-        dist = mid - own_loc
-        dist2 = mid - opp_loc
+        WIDTH = 11
+        own_x, own_y = own_loc % (WIDTH + 2), own_loc // (WIDTH + 2)
+        opp_x, opp_y = opp_loc % (WIDTH + 2), opp_loc // (WIDTH + 2)
+        mid_x, mid_y = mid % (WIDTH + 2), mid // (WIDTH + 2)
+        dist = math.sqrt(((own_x - mid_x) ** 2) + ((own_y - mid_y) ** 2))
+        dist2 = math.sqrt(((opp_x - mid_x) ** 2) + ((opp_y - mid_y) ** 2))
+
+        wght = 0.5
+        # wght=1
+        # wght=2
+        # wght=3
 
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
