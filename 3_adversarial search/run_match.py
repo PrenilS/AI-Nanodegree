@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 NUM_PROCS = 1
 NUM_ROUNDS = 5  # number times to replicate the match; increase for higher confidence estimate
-TIME_LIMIT = 400  # number of milliseconds before timeout
+TIME_LIMIT = 450  # number of milliseconds before timeout
 
 TEST_AGENTS = {
     "RANDOM": Agent(RandomPlayer, "Random Agent"),

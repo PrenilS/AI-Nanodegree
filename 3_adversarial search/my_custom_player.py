@@ -8,12 +8,12 @@ class CustomPlayer(DataPlayer):
 
     def get_action(self, state):
 
-        if state.ply_count < 3:
+        if state.ply_count < 5:
             self.queue.put(random.choice(state.actions()))
-            # if state in self.data:
-            # self.queue.put(self.data[state])
-        # else:
-        # self.queue.put(random.choice(state.actions()))
+            if state in self.data:
+                self.queue.put(self.data[state])
+            else:
+                self.queue.put(random.choice(state.actions()))
         else:
             depth_limit = 5
             for depth in range(1, depth_limit + 1):

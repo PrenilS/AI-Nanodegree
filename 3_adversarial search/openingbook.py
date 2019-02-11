@@ -4,8 +4,9 @@ from collections import defaultdict, Counter
 from isolation import *
 from isolation.isolation import Action, _ACTIONSET
 from sample_players import *
-import time
-import  math
+import math
+
+NUM_ROUNDS = 1000
 
 horizontal_actions = {Action.NNE:Action.NNW,Action.ENE:Action.WNW,Action.ESE:Action.WSW,Action.SSE:Action.SSW,Action.SSW:Action.SSE,Action.WSW:Action.ESE,Action.WNW:Action.ENE,Action.NNW:Action.NNE}
 vertical_actions = {Action.NNE:Action.SSE,Action.ENE:Action.ESE,Action.ESE:Action.ENE,Action.SSE:Action.NNE,Action.SSW:Action.NNW,Action.WSW:Action.WNW,Action.WNW:Action.WSW,Action.NNW:Action.SSW}
@@ -115,9 +116,6 @@ def rotate_state_action(state, action):
     return [(state_horizontal,action_horizontal),(state_vertical,action_vertical),(state_diagonal,action_diagonal)]
 
 
-
-NUM_ROUNDS = 1000
-
 def build_table(num_rounds=NUM_ROUNDS):
 
     book = defaultdict(Counter)
@@ -138,6 +136,10 @@ def build_tree(state, book, depth=5):
     for i, item in enumerate(rotations):
         book[item[0]][item[1]] += reward
     book[state][action] += reward
+
+    if (state.locs[state.player()] == None) & (state.locs[1-state.player()] == None):
+        book[state][57] += 100
+
     return -reward
 
 
