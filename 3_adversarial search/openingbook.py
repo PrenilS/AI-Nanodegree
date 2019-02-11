@@ -2,6 +2,7 @@ import random
 import pickle
 from collections import defaultdict, Counter
 from isolation import *
+from isolation.isolation import Action, _ACTIONSET
 from sample_players import *
 import time
 import  math
@@ -78,26 +79,38 @@ def rotate_state_action(state, action):
 
     own_loc = state.locs[0]
     opp_loc = state.locs[1]
-    row1, col1 = own_loc // (w + 2), own_loc % (w + 2)
-    row2, col2 = opp_loc // (w + 2), opp_loc % (w + 2)
+    row1, col1 = (own_loc // (w + 2) if own_loc != None else None, own_loc % (w + 2) if own_loc != None else None)
+    row2, col2 = (opp_loc // (w + 2) if opp_loc != None else None, opp_loc % (w + 2) if opp_loc != None else None)
 
     board_horizontal = eval('0b'+''.join([row[::-1] for row in board]))
     players_horizontal = (row1 * (w+2) + (w-1-col1) if own_loc != None else None,
                           row2 * (w+2) + (w-1-col2) if opp_loc != None else None)
     state_horizontal = Isolation(board=board_horizontal, ply_count=state.ply_count, locs=players_horizontal)
-    action_horizontal = horizontal_actions[action]
+    if action not in _ACTIONSET:
+        row3, col3 = action // (w + 2), action % (w + 2)
+        action_horizontal = row3 * (w+2) + (w-1-col3)
+    else:
+        action_horizontal = horizontal_actions[action]
 
     board_vertical = eval('0b'+''.join(board[::-1]))
     players_vertical = ((h-1-row1) * (w+2) + col1 if own_loc != None else None,
                         (h-1-row2) * (w+2) + col2 if opp_loc != None else None)
     state_vertical = Isolation(board=board_vertical, ply_count=state.ply_count, locs=players_vertical)
-    action_vertical = vertical_actions[action]
+    if action not in _ACTIONSET:
+        row3, col3 = action // (w + 2), action % (w + 2)
+        action_vertical = (h-1-row3) * (w+2) + col3
+    else:
+        action_vertical = vertical_actions[action]
 
     board_diagonal = eval('0b'+''.join([row[::-1] for row in board[::-1]]))
     players_diagonal = ((h-1-row1) * (w+2) + (w-1-col1) if own_loc != None else None,
                         (h-1-row2) * (w+2) + (w-1-col2) if opp_loc != None else None)
     state_diagonal = Isolation(board=board_diagonal, ply_count=state.ply_count, locs=players_diagonal)
-    action_diagonal = diagonal_actions[action]
+    if action not in _ACTIONSET:
+        row3, col3 = action // (w + 2), action % (w + 2)
+        action_diagonal = (h-1-row3) * (w+2) + (w-1-col3)
+    else:
+        action_diagonal = diagonal_actions[action]
 
     return [(state_horizontal,action_horizontal),(state_vertical,action_vertical),(state_diagonal,action_diagonal)]
 
