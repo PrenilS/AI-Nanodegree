@@ -6,6 +6,11 @@ from sample_players import *
 import time
 import  math
 
+horizontal_actions = {Action.NNE:Action.NNW,Action.ENE:Action.WNW,Action.ESE:Action.WSW,Action.SSE:Action.SSW,Action.SSW:Action.SSE,Action.WSW:Action.ESE,Action.WNW:Action.ENE,Action.NNW:Action.NNE}
+vertical_actions = {Action.NNE:Action.SSE,Action.ENE:Action.ESE,Action.ESE:Action.ENE,Action.SSE:Action.NNE,Action.SSW:Action.NNW,Action.WSW:Action.WNW,Action.WNW:Action.WSW,Action.NNW:Action.SSW}
+diagonal_actions = {Action.NNE:Action.SSW,Action.ENE:Action.WSW,Action.ESE:Action.WNW,Action.SSE:Action.NNW,Action.SSW:Action.NNE,Action.WSW:Action.ENE,Action.WNW:Action.ESE,Action.NNW:Action.SSE}
+
+
 def alpha_beta_search(state, depth=5):
 
     def min_value(state, depth, alpha, beta):
@@ -54,10 +59,10 @@ def score(state):
     opp_loc = state.locs[1 - state.player()]
     mid = 57
 
-    WIDTH = 11
-    own_x, own_y = own_loc % (WIDTH + 2), own_loc // (WIDTH + 2)
-    opp_x, opp_y = opp_loc % (WIDTH + 2), opp_loc // (WIDTH + 2)
-    mid_x, mid_y = mid % (WIDTH + 2), mid // (WIDTH + 2)
+    w = 11
+    own_x, own_y = own_loc % (w + 2), own_loc // (w + 2)
+    opp_x, opp_y = opp_loc % (w + 2), opp_loc // (w + 2)
+    mid_x, mid_y = mid % (w + 2), mid // (w + 2)
     dist = math.sqrt(((own_x - mid_x) ** 2) + ((own_y - mid_y) ** 2))
     dist2 = math.sqrt(((opp_x - mid_x) ** 2) + ((opp_y - mid_y) ** 2))
 
@@ -65,6 +70,36 @@ def score(state):
     opp_liberties = state.liberties(opp_loc)
     return (len(own_liberties) - dist) - (len(opp_liberties) - dist2)
 
+def rotate_state_action(state, action):
+    w = 11
+    h = 9
+    board = bin(state.board)[2:]
+    board = [board[i*(w+2):(i+1)*(w+2)] for i in range(h)]
+
+    own_loc = state.locs[0]
+    opp_loc = state.locs[1]
+    row1, col1 = own_loc // (w + 2), own_loc % (w + 2)
+    row2, col2 = opp_loc // (w + 2), opp_loc % (w + 2)
+
+    board_horizontal = eval('0b'+''.join([row[::-1] for row in board]))
+    players_horizontal = (row1 * (w+2) + (w-1-col1) if own_loc != None else None,
+                          row2 * (w+2) + (w-1-col2) if opp_loc != None else None)
+    state_horizontal = Isolation(board=board_horizontal, ply_count=state.ply_count, locs=players_horizontal)
+    action_horizontal = horizontal_actions[action]
+
+    board_vertical = eval('0b'+''.join(board[::-1]))
+    players_vertical = ((h-1-row1) * (w+2) + col1 if own_loc != None else None,
+                        (h-1-row2) * (w+2) + col2 if opp_loc != None else None)
+    state_vertical = Isolation(board=board_vertical, ply_count=state.ply_count, locs=players_vertical)
+    action_vertical = vertical_actions[action]
+
+    board_diagonal = eval('0b'+''.join([row[::-1] for row in board[::-1]]))
+    players_diagonal = ((h-1-row1) * (w+2) + (w-1-col1) if own_loc != None else None,
+                        (h-1-row2) * (w+2) + (w-1-col2) if opp_loc != None else None)
+    state_diagonal = Isolation(board=board_diagonal, ply_count=state.ply_count, locs=players_diagonal)
+    action_diagonal = diagonal_actions[action]
+
+    return [(state_horizontal,action_horizontal),(state_vertical,action_vertical),(state_diagonal,action_diagonal)]
 
 
 
@@ -85,6 +120,10 @@ def build_tree(state, book, depth=5):
 
     action = alpha_beta_search(state=state, depth=5)
     reward = build_tree(state.result(action), book, depth - 1)
+
+    rotations = rotate_state_action(state, action)
+    for i, item in enumerate(rotations):
+        book[item[0]][item[1]] += reward
     book[state][action] += reward
     return -reward
 
@@ -96,11 +135,6 @@ def simulate(state):
 
 
 if __name__ == "__main__":
-    print("Enter>>>")
-    start = time.time()
     open_book = build_table(NUM_ROUNDS)
-    print(open_book)
-    end = time.time()
-    print("The total time for {} rounds is {} seconds, the average time for each round is {} seconds per round".format(NUM_ROUNDS,end-start,(end-start)/NUM_ROUNDS))
     with open("data.pickle", 'wb') as f:
         pickle.dump(open_book, f)
