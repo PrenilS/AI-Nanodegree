@@ -4,9 +4,9 @@ from collections import defaultdict, Counter
 from isolation import *
 from sample_players import *
 import time
+import  math
 
-
-def alpha_beta_search(state, depth=3):
+def alpha_beta_search(state, depth=5):
 
     def min_value(state, depth, alpha, beta):
         if state.terminal_test():
@@ -48,12 +48,22 @@ def alpha_beta_search(state, depth=3):
             best_move = a
     return best_move
 
+
 def score(state):
     own_loc = state.locs[state.player()]
     opp_loc = state.locs[1 - state.player()]
+    mid = 57
+
+    WIDTH = 11
+    own_x, own_y = own_loc % (WIDTH + 2), own_loc // (WIDTH + 2)
+    opp_x, opp_y = opp_loc % (WIDTH + 2), opp_loc // (WIDTH + 2)
+    mid_x, mid_y = mid % (WIDTH + 2), mid // (WIDTH + 2)
+    dist = math.sqrt(((own_x - mid_x) ** 2) + ((own_y - mid_y) ** 2))
+    dist2 = math.sqrt(((opp_x - mid_x) ** 2) + ((opp_y - mid_y) ** 2))
+
     own_liberties = state.liberties(own_loc)
     opp_liberties = state.liberties(opp_loc)
-    return len(own_liberties) - len(opp_liberties)
+    return (len(own_liberties) - dist) - (len(opp_liberties) - dist2)
 
 
 
