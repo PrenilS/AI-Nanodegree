@@ -153,3 +153,4 @@ if __name__ == "__main__":
     open_book = build_table(NUM_ROUNDS)
     with open("data.pickle", 'wb') as f:
         pickle.dump(open_book, f)
+    print("pickled")
