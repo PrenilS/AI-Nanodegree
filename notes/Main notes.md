@@ -705,7 +705,7 @@ success, then the expected number of restarts required is 1/p.
 The expected number of steps is the cost of one successful iteration plus
 (1−p)/p times the cost of failure.
 
-###Simulated annealing
+### Simulated annealing
 
 Shakes up the algorithm enough to move out of a local max/min but not out of global max/min.
 
@@ -742,7 +742,7 @@ function Simulate-annealing(problem, schedule):
     return current
 ```
 
-###Local beam search
+### Local beam search
 
 Keeps track of k states rather than one node at a time. 
 Generate k states randomly then at each step, successors of all k states are generated. 
@@ -859,7 +859,7 @@ linear. Complexity is polynomial in number of variables.
 
 *Convex optimization* are the more general class of this problem. 
 
-###SEARCHING WITH NONDETERMINISTIC ACTIONS
+### SEARCHING WITH NONDETERMINISTIC ACTIONS
 
 When the environment is either partially observable or nondeterministic you need to be able to perceive and learn from
 environment as you go through. 
@@ -877,7 +877,7 @@ To formulation nondeterministic problems, we need to generalize the notion of a 
 a RESULT function that returns a set of possible outcome states instead of just one state.
 Solutions can contain nested if–then–else statements to do this (more like a tree).
 
-####AND–OR search trees
+#### AND–OR search trees
 
 In deterministic environments, the only branching comes from the agents choices in each state (*OR nodes*).
 In nondeterministic environments, branching can also come from the environment’s choice of outcome for each action
@@ -942,9 +942,9 @@ Cyclic plans are a solution if:
 Loop in the state space back to a state L is same as a loop in the plan back to the point where 
 the subplan for state L is executed.
 
-##Multiagent domains
+## Multiagent domains
 
-###Adversarial search
+### Adversarial search
 
 Deterministic, turn-taking, two-player, *zero-sum games* (total payoff to all players
 is the same in every game) of perfect information are just deterministic problems.
@@ -972,7 +972,7 @@ defines the final numeric value for a game that ends in terminal state s for a p
 Initial state, ACTIONS function, and RESULT function define the *game tree*. 
 
 
-###OPTIMAL DECISIONS IN GAMES
+### OPTIMAL DECISIONS IN GAMES
 
 Solution specifies MAX’s move in the initial state, then actions for every possible state that could be caused by MIN.
 This is an AND–OR search.
@@ -991,7 +991,7 @@ MINIMAX(s) = UTILITY(s) if TERMINAL-TEST(s)
         
 For max, the *minimax decision* at each node is the action that leads to the highest minimax utility.
      
-####The minimax algorithm
+#### The minimax algorithm
 
 The minimax algorithm performs a complete depth-first exploration of the game tree. Alternating between min and max nodes:
 
@@ -1028,14 +1028,14 @@ time complexity of the minimax algorithm is O(b^m).
 Can be estimated by average_branching_factor^average_number_nodes.
 The space complexity is O(bm) if all actions generated once, or O(m) if one at a time.
  
-####Optimal decisions in multiplayer games
+#### Optimal decisions in multiplayer games
 
 Single value for each node becomes a vector.
 
 The backed-up value of a node n is always the utility vector of the successor state with the highest value 
 for the player choosing at n. 
 
-###Depth-limited search
+#### Depth-limited search
 
 Best moves are called *killer moves* so this is called the killer move heuristic.
 
@@ -1082,7 +1082,7 @@ in time to where the best option would reveal itself and so makes bad choices no
 evaluation function but the more complicated the evaluation function, the bigger the effect on performance 
 further down the tree.
 
-###ALPHA–BETA PRUNING
+#### ALPHA–BETA PRUNING
 
 Number of game states minimax has to go through is exponential in the depth of the tree. 
 Can cut exponent in half if can compute the correct minimax decision without looking at every node.
@@ -1138,7 +1138,7 @@ function MIN-VALUE(state,α,β):
     return v
 ```
 
-####Move ordering
+#### Move ordering
 
 The effectiveness of alpha–beta pruning depends on order of how states are visited.
 Need to first the successors that are likely to be best so worse ones can be pruned.
@@ -1151,16 +1151,50 @@ Even simple ordering gets you close to the best-case O(bm/2). Dynamic move-order
 such as trying first the moves that were found
 to be best in the past, gets even closer to the theoretical limit. 
 
-####Symetry
+#### Symetry
 
 Can eliminate the need to search certain states by checking if an equivalent state has already been searched.
 
-####Opening book
+#### Opening book
 
 Can learn from experience which opening moves best. Opening 
 books are usually built by analyzing a large corpus of games.
 
 Can create a corpus by using random  rollouts (or by using your agent) to play many games.
 
+#### Extended minimax
 
+*MAXN for >2 Player games*
 
+Can't use minimax since more than 2 players. Have to evaluate the board nodes from every players perspective.
+All nodes are max nodes but they alternate being max nodes for each different player. This is a MaxN game tree.
+
+Pruning can be used as long as some players eval functions have upper bounds and all have lower bounds.
+Can do shallow pruning but not deep pruning like in alpha-beta search.
+
+*Expectimax for probabilistic games*
+
+Branch over actions and each action also gets split into branches for each probable result of the action.
+Expected value of each branch is prob of that branch*the evaluation function it has.
+
+Can only prune when have know bounds on possible values.
+
+#### Monte Carlo Tree Search
+
+An aheuristic search which worked better than minimax in extremely large domains.
+ 
+Uses a tree search and replaces the heuristic function with a simulation of the remaining moves in the game using 
+a default policy. Many iterations of these *rollouts* are used to estimate the value of each possible action.
+ 
+There are 4 phases: 
+1. Selection
+2. Expansion
+3. Simulation
+4. Backpropagation
+
+Pseudocode for each phase is shown below, along with the backup step for 2-player games.
+
+Uniform sampling of the action space is possible but inefficient.
+Upper Confidence Bound for Trees (UCT) samples more promising actions more frequently. 
+
+MCTS converges to the minimax value of a search tree as the number of simulations goes towards infinity.
