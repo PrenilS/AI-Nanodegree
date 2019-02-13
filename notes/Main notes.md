@@ -1198,3 +1198,88 @@ Uniform sampling of the action space is possible but inefficient.
 Upper Confidence Bound for Trees (UCT) samples more promising actions more frequently. 
 
 MCTS converges to the minimax value of a search tree as the number of simulations goes towards infinity.
+
+## Quantifying uncertainty
+
+Agents face uncertainty from partial observability, nondeterminism, or both. 
+
+This can be done by keeping track of all the various belief states which the agent could have. However a logical
+agent considers all options no matter how unlikely, can need to develop arbitrarily large contingent fluents
+and may need to take an action even when it find none achieve the goal.
+
+
+Agents must have preferences between different possible outcomes plan to allow choices to be made between them. 
+Utility theory is used to differentiate between different possible states.
+Utility functions accountfor any set of preference.
+ 
+*Decision theory* = probability theory + utility theory (maximum expected utility):
+
+An agent is rational if and only if it chooses
+the action that yields the highest expected utility, averaged over all the possible outcomes of the action. 
+
+The set of all mutually exclusive and exhaustive possible worlds is the sample space
+A fully specified probability model associates a numerical probability with each
+possible world and total probability of the set is 1.
+
+
+Probabilistic assertions are usually about sets (events)) of worlds. 
+
+Probabilities not depending on exact members but outcomes are unconditional (prior) probabilities.
+Degrees of belief in propositions in the absence of any other information. 
+
+When we have some extra evidence though, we are interested in the conditional (posterior) probability 
+P (set | evidence). 
+1. P (a | b) = P (a ∧ b)/P (b) , P (b) > 0. 
+2. P(a ∧ b) = P(a | b)P(b)
+3. P(a ∨ b) = P(a) + P(b) − P(a ∧ b)
+
+The probability of a proposition is the sum of the probabilities of worlds in which it holds. 
+A possible world is an assignment of values to all of the random variables under consideration. 
+A probability model is completely determined by the joint distribution for all of the random variables.
+
+1. P(Y) = Sum(z∈Z,P(Y, z))
+2. P(Y) = Sum(z∈Z,P(Y | z)P(z))
+ 
+*Normalization*
+ 
+ makes the computation easier and to allow us to proceed when
+some probabilities are unknown.
+P(X | e) = α P(X, e) = αSum(y,P(X, e, y))
+
+So given the full joint distribution to work with, can answer most queries. But does not scale well, 
+for n Boolean variables, it requires an input table of size O(2^n) and takes O(2^n) time to process.
+
+*Independence*:
+ 
+ P (a | b) = P (a) or P (b | a) = P (b) or P (a ∧ b) = P (a)P (b)
+Independence assertions are usually based on knowledge of the domain and can reduce the amount of information 
+necessary to specify the full joint distribution. 
+But independence is rare. 
+
+#### BAYES’ RULE
+
+P (a ∧ b) = P (a | b)P (b) and P (a ∧ b) = P (b | a)P (a)
+
+==> P(b|a) = P(a|b) P(b) P(a)
+or P(cause|effect) = P(effect|cause) P(cause) P(effect) 
+
+Or with extra evidence e:
+
+P(Y|X,e) = P(X|Y,e) P(Y|e) P(X|e)
+
+Normalising:
+
+P(Y|X) = α P(X|Y) P(Y) where α is the normalization constant needed to make the entries in P(Y|X) sum to 1.
+
+Still scales just as badly though badly. 
+
+Need additional assertions about the
+domain that will enable us to simplify the expressions. 
+
+*CONDITIONAL INDEPENDENCE*
+ 
+Conditional independence of two variables X and Y , given a third variable Z is
+P(X,Y|Z) = P(X|Z)P(Y|Z) ===> P(X|Y,Z) = P(X|Z) and P(Y|X,Z) = P(Y|Z)
+
+
+
