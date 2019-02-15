@@ -1281,5 +1281,102 @@ domain that will enable us to simplify the expressions.
 Conditional independence of two variables X and Y , given a third variable Z is
 P(X,Y|Z) = P(X|Z)P(Y|Z) ===> P(X|Y,Z) = P(X|Z) and P(Y|X,Z) = P(Y|Z)
 
+##### Naive Bayes
+
+Assumes that probability of intersection is product of probabilities. So assume they are all independent.
+
+When want to find P(X|e1,e2)=P(e1,e2|X)P(X)/P(e1,e2) but we dont know the probability of the evidence,
+then we still know that P(X|e1,e2) is proportional to P(e1,e2|X)P(X).
+Using naive assumption, P(e1,e2|X) = P(e1|X)P(e2|X). Usually have these.
+Also P(notX|e1,e2) is proportional to P(e1,e2|notX)P(notX). So if you have proportionals for both
+then can normalise to get the true probabilities.
+
+#### Bayes' Networks
 
 
+Compact representation of a distribution over a large joint probability distribution.
+
+Graphical representation of Bayes rule with unobservable variables and observable ones.
+For 1 of each type, we need 3 variables to specify the full joint pdf.
+
+P(A|B) = P(B|A) P(A) / P(B) = P(B|A) P(A) / (P(B|A) + P(B|notA))
+
+But dont need P(B) since P(notA|B) = P(B|notA) P(notA) / P(B).
+
+and P(notA|B) + P(A|B) = 1 so can work normalizer P(B) out after finding each numerator first.
+
+Hidden variable causes observed and interested in prob of hidden. A->B and assumes conditional independence
+between observed variables.
+
+Joint prob dist in general Bayes network is defined by 1 variable for each node with nothing going into it,
+2 for each with one dependency, 4 if there are 2 ect. 2^num dependencies
+
+Nets have 3 types of variables:
+1. Evidence
+2. Query
+3. Hidden
+
+P(Q|E) = P(Q,E)/P(E) = sum(h,P(Q,E,h)) = sum(h,in terms of parents of each node) = sum(h,P(Q)P(H|Q)P(E|H))
+
+This summing over the hidden variables is called *enumeration*. But is not practical when there are many nodes.
+Can pull variables out of the sum so that you only need to compute them once each time.
+
+Can also *maximise independence* so that network is the most compact when they are written in the causal direction
+and move from causes to effects.
+
+*Variable elimination* can also help.
+1. Joining factors: so if we have P(A) and P(B|A) then we compute the joint prob P(A,B) = P(B|A)P(A).
+2. Marginalisation: Now get single prob from the joint so P(B) alone by summing up. 
+
+This allows you to use joining again
+since we have P(B) we can use P(C|B) to get P(B,C). Then you can Magrinalise again and get P(C).
+
+With good choices for variables then can be much more efficient than enumeration.
+
+Still NP-hard though. All inference will be computationally intensive. So an alternative is to use 
+sampling to determine the joint distributions of the variables without needing to work them out as 
+long as you can simulate the process. Even if you don't know the probabilities. Sampling method
+is consistent when it computes the full joint pdf with an infinite number of samples.
+
+In order to compute the conditional probabilities you can still sample
+but you must use rejection sampling and reject any samples you generate which don't match the conditions
+you care trying to investigate. This *rejection sampling* is also consistent. 
+
+But if your conditions are
+unlikely then you reject way too many samples. SO you use *likelihood weighting* where you fix the evidence
+variables that you want and then sample the rest. This not consistent though. So have to assign a 
+probability to each sample to weight them correctly and this makes it consistent.
+
+*Gibbs sampling*
+Uses all the info with Markov chain Monte Carlo MCMC. Fix all evidence vars and choose just one and sample
+that one. Then choose the next one.
+
+
+*D separation*
+
+Any two variables are independent when not linked by only unknowns.
+
+### Hidden Markov Models
+
+#### Part of speech tagging
+
+Use a look up table of words and what part of speech they are to be able to predict what they will be.
+Not good if a word can have more than one part of speech. Can use bigrams or N-grams to solve this.
+But problem is that all possible bigrams or N-grams wont always appear in your training data.
+So you will have some ngrams that you wont know how to deal with. Solve with HMM's.
+
+*Emission probabilities* are the same lookup for each word but divide the numbers by the total for each column. 
+So You have the probabilities for each word to be each part of speech. So if you know its a noun then you
+know what the prob is that it is each word.
+
+Use *transition probabilities* to understand how likely one part of speech is to follow another. Divide
+each row by sum of entries to get prob of the col part of speech following the row part of speech.
+
+*Hidden states* are the parts of speech. The observations are the works. transition probs are between states
+and emission probs are between states and observations. So prob of a sentence is transition prob*emission prob*
+trans*emission ect. But to check each possible combination just like that is exponential in the number of things.
+Make a graph of all possible parts of speech for each word in the sentence with all connections and then add probs in.
+Delete all edges and vertices that have a prob of 0. Also remove all edges not making it to the end.
+
+# TODO: ch 14, 15.1-15.3
+Speech and lang proc ch9&10
