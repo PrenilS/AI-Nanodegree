@@ -8,14 +8,16 @@ class AlphaBetaBook(DataPlayer):
 
     def get_action(self, state):
 
-        if state.ply_count < 5:
-            self.queue.put(random.choice(state.actions()))
+        if state.ply_count < 6:
             if state in self.data:
                 self.queue.put(self.data[state])
             else:
-                self.queue.put(random.choice(state.actions()))
+                depth_limit = 2
+                for depth in range(1, depth_limit + 1):
+                    best_move = self.alpha_beta_search(state, depth)
+                    self.queue.put(best_move)
         else:
-            depth_limit = 5
+            depth_limit = 4
             for depth in range(1, depth_limit + 1):
                 best_move = self.alpha_beta_search(state, depth)
             self.queue.put(best_move)
@@ -76,7 +78,8 @@ class AlphaBetaBook(DataPlayer):
 
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
-        return (len(own_liberties) - dist) - (len(opp_liberties) - dist2 )
+        return (len(own_liberties) - dist) - (len(opp_liberties) - dist2)
+
 
 class AlphaBetaCustom(DataPlayer):
 
@@ -147,7 +150,8 @@ class AlphaBetaCustom(DataPlayer):
 
         own_liberties = state.liberties(own_loc)
         opp_liberties = state.liberties(opp_loc)
-        return (len(own_liberties) - dist) - (len(opp_liberties) - dist2 )
+        return (len(own_liberties) - dist) - (len(opp_liberties) - dist2)
+
 
 class AlphaBeta(DataPlayer):
 
@@ -156,7 +160,7 @@ class AlphaBeta(DataPlayer):
         if state.ply_count < 2:
             self.queue.put(random.choice(state.actions()))
         else:
-            depth_limit = 5
+            depth_limit = 4
             for depth in range(1, depth_limit + 1):
                 best_move = self.alpha_beta_search(state, depth)
             self.queue.put(best_move)
@@ -212,4 +216,5 @@ class AlphaBeta(DataPlayer):
         opp_liberties = state.liberties(opp_loc)
         return (len(own_liberties)) - (len(opp_liberties))
 
-CustomPlayer = AlphaBeta
+
+CustomPlayer = AlphaBetaBook
