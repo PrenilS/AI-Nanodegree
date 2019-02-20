@@ -13,7 +13,7 @@ vertical_actions = {Action.NNE:Action.SSE,Action.ENE:Action.ESE,Action.ESE:Actio
 diagonal_actions = {Action.NNE:Action.SSW,Action.ENE:Action.WSW,Action.ESE:Action.WNW,Action.SSE:Action.NNW,Action.SSW:Action.NNE,Action.WSW:Action.ENE,Action.WNW:Action.ESE,Action.NNW:Action.SSE}
 
 
-def alpha_beta_search(state, depth=5):
+def alpha_beta_search(state, depth=6):
 
     def min_value(state, depth, alpha, beta):
         if state.terminal_test():
@@ -122,14 +122,17 @@ def build_table(num_rounds=NUM_ROUNDS):
     for i in range(num_rounds):
         state = Isolation()
         build_tree(state, book)
+        build_tree2(state, book)
     return {k: max(v, key=v.get) for k, v in book.items()}
 
 
-def build_tree(state, book, depth=5):
+def build_tree(state, book, depth=6):
     if depth <= 0 or state.terminal_test():
         return -simulate(state)
 
-    action = alpha_beta_search(state=state, depth=5)
+    action = alpha_beta_search(state=state, depth=6)
+    if (state.locs[state.player()] is None) & (state.locs[1-state.player()] is None):
+        action=57
     reward = build_tree(state.result(action), book, depth - 1)
 
     rotations = rotate_state_action(state, action)
@@ -137,9 +140,18 @@ def build_tree(state, book, depth=5):
         book[item[0]][item[1]] += reward
     book[state][action] += reward
 
-    if (state.locs[state.player()] == None) & (state.locs[1-state.player()] == None):
-        book[state][57] += 100
+    return -reward
 
+def build_tree2(state, book, depth=6):
+    if depth <= 0 or state.terminal_test():
+        return -simulate(state)
+    action = random.choice(state.actions())
+    reward = build_tree2(state.result(action), book, depth - 1)
+
+    rotations = rotate_state_action(state, action)
+    for i, item in enumerate(rotations):
+        book[item[0]][item[1]] += reward
+    book[state][action] += reward
     return -reward
 
 
